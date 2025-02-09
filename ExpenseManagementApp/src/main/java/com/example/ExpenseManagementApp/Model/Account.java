@@ -17,7 +17,7 @@ public class  Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id", nullable = false)
-    private Long id;
+    private Long account_id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -49,7 +49,7 @@ public class  Account {
     }
 
     public Long getAccountId() {
-        return id;
+        return account_id;
     }
 
 

@@ -24,6 +24,7 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
 
     List<Category> findByType(Category.CatType type);
 
+//    List<Category> findByAccountIdOrUserId(Long accountId, Long userId);
 
     List<Category> findCategoriesById(Long id);
 

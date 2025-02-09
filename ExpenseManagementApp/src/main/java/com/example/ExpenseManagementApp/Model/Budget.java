@@ -40,6 +40,24 @@ public class Budget {
     @Column(name = "budget_frequency", nullable = false)
     private Frequency budgetFrequency;
 
+    public Account getAccount() { return account;}
+    public void setAccount(Account account) { this.account = account;}
+
+    public String getBudgetName() { return budgetName;}
+    public void setBudgetName(String budgetName) { this.budgetName = budgetName;}
+
+    public BigDecimal getAmount() { return amount;}
+    public void setAmount(BigDecimal amount) { this.amount = amount;}
+
+    public LocalDate getBudgetStartDate() { return budgetStartDate;}
+    public void setBudgetStartDate(LocalDate budgetStartDate) {this.budgetStartDate = budgetStartDate;}
+
+    public LocalDate getBudgetEndDate() { return budgetEndDate;}
+    public void setBudgetEndDate(LocalDate budgetEndDate) {this.budgetEndDate = budgetEndDate;}
+
+    public Frequency getBudgetFrequency() { return budgetFrequency;}
+    public void setBudgetFrequency(Frequency budgetFrequency) { this.budgetFrequency = budgetFrequency;}
+
     public enum Frequency {
         MONTHLY,
         YEARLY

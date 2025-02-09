@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findByAccountAndAmountGreaterThan(Account account, BigDecimal amount);
 
-    List<Transaction> findAllByTypeAndAccount_Id(Category.CatType type, Long accountId);
+    List<Transaction> findAllByTypeAndAccountId(Category.CatType type, Long accountId);
 
 
     Optional<Transaction> findById(Long id);
