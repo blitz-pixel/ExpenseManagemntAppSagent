@@ -1,5 +1,6 @@
 package com.example.ExpenseManagementApp.Services;
 
+import com.example.ExpenseManagementApp.DTO.AccountDTO;
 import com.example.ExpenseManagementApp.Model.Account;
 import com.example.ExpenseManagementApp.Model.User;
 import com.example.ExpenseManagementApp.Repositories.AccountRepository;
@@ -12,21 +13,35 @@ import java.util.List;
 @Service
 public class AccountService {
 
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
+
+    private final UserRepository userRepository;
 
     @Autowired
-    private UserRepository userRepository;
-
-    /**
-     * Fetches all accounts associated with the given username.
-     *
-     * @param username The username of the authenticated user.
-     * @return A list of accounts.
-     */
-    public List<Account> getAccountsByUsername(String username) {
-        User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return accountRepository.findAccountByUser_id(user.getUser_id());
+    public AccountService(AccountRepository accountRepository, UserRepository userRepository) {
+        this.accountRepository = accountRepository;
+        this.userRepository = userRepository;
     }
+
+
+    public List<AccountDTO> getAccountsByUsername(Long user_id) {
+//        User user = userRepository.findByUserName(username)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<Account>  accounts= accountRepository.findAccountByUser_id(user_id);
+        return accounts.stream().map(AccountDTO::new).toList();
+    }
+
+
+    // Before implementing the concept of shared accounts
+    public Long getUserId(Long accountId){
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        return account.getUser_Foriegn_id().getUser_id();
+    }
+
+    public  User getUser(Account account){
+        return account.getUser_Foriegn_id();
+    }
+
+
 }

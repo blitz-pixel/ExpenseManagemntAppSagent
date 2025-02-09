@@ -25,10 +25,10 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/v1")
-                        .allowedOrigins("http://localhost:8080") // Allow requests from this origin
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:5173") // Allow reques from this originst
                         .allowedMethods("GET", "POST", "PUT", "DELETE") // Allow these HTTP methods
-                        .allowedHeaders("*") // Allow all headers
+                        .allowedHeaders("*")
                         .exposedHeaders("*")
                         .allowCredentials(true); // Allow credentials (e.g., cookies)
             }
@@ -47,10 +47,10 @@ public class CorsConfig {
         return http.build();
     }
 
-    private final JwFilter jwFilter;
+//    private final JwFilter jwFilter;
 
-    public CorsConfig(JwFilter jwFilter) {
-        this.jwFilter = jwFilter;
+    public CorsConfig() {
+        ;
     }
 
 //    @Bean
@@ -65,15 +65,15 @@ public class CorsConfig {
 //                .build();
 //    }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+//        return config.getAuthenticationManager();
+//    }
+//
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
 
 //
 //        public SecurityConfig(UserDetailsService userDetailsService) {

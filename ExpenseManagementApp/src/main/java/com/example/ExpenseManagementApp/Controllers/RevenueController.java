@@ -1,12 +1,13 @@
 package com.example.ExpenseManagementApp.Controllers;
 
-import com.example.ExpenseManagementApp.DTO.RevenueRequest;
-import com.example.ExpenseManagementApp.DTO.RevenueResponseDTO;
+import com.example.ExpenseManagementApp.DTO.TransactionDTO;
+import com.example.ExpenseManagementApp.Model.Category;
 import com.example.ExpenseManagementApp.Model.Transaction;
 import com.example.ExpenseManagementApp.Services.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+//import sun.util.logging.PlatformLogger;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -14,50 +15,51 @@ import java.util.logging.Logger;
 @RestController
 @RequestMapping("/api/v1/revenue")
 public class RevenueController {
-    private final Logger logger = Logger.getLogger(getClass().getName());
-    private final TransactionService transactionService;
+    Logger logger = Logger.getLogger(getClass().getName());
+
+
+    public TransactionService transactionService;
 
     @Autowired
-    public RevenueController(TransactionService transactionService) {
+    public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
 
     @GetMapping
-    public ResponseEntity<List<RevenueResponseDTO>> getAllRevenues(@RequestParam Long accountId) {
+    public ResponseEntity<List<TransactionDTO>> getAllRevenues(@RequestParam Long accountId) {
         try {
-            List<RevenueResponseDTO> revenues = transactionService.getRevenueTransactions(accountId);
-            return ResponseEntity.ok(revenues);
+            return ResponseEntity.ok(transactionService.getTransactions(accountId, Category.CatType.income));
         } catch (Exception e) {
-            logger.warning("Error fetching revenues: " + e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            logger.info("Error Revenue : " + e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PostMapping("/add")
-    public ResponseEntity<RevenueResponseDTO> addRevenue(@RequestBody RevenueRequest request) {
+    public ResponseEntity<?> addRevenue(@RequestBody TransactionDTO transactionDTO) {
+
         try {
-            if (request == null || request.getAccountId() == null || request.getAmount() == null || request.getCategoryId() == null) {
-                logger.warning("Invalid request body");
-                return ResponseEntity.badRequest().body(null);
+            if (transactionDTO == null) {
+                logger.warning("Request body is null");
+                return ResponseEntity.badRequest().body("Request body is missing");
             }
 
-            logger.info("Received Request: Account ID = " + request.getAccountId() +
-                    ", Description = " + request.getDescription() +
-                    ", Amount = " + request.getAmount() +
-                    ", Category ID = " + request.getCategoryId());
-
-            Transaction transaction = transactionService.addRevenue(
-                    request.getAccountId(),
-                    request.getDescription(),
-                    request.getAmount(),
-                    request.getCategoryId()
+            logger.info("Received Request: Account ID = " + transactionDTO.getAccountId() +
+                    ", Description = " + transactionDTO.getDescription() +
+                    ", Amount = " + transactionDTO.getAmount() +
+                    ", Category Names = " + transactionDTO.getSubCategoryName() + transactionDTO.getParentCategoryName()
             );
 
-            RevenueResponseDTO response = new RevenueResponseDTO(transaction);
-            return ResponseEntity.ok(response);
+            if (transactionDTO.getAccountId() == null || transactionDTO.getAmount() == null) {
+                return ResponseEntity.badRequest().body("Missing required fields in the transactionDTO body");
+            }
+            Transaction t = transactionService.addTransaction(transactionDTO, Category.CatType.income);
+            return ResponseEntity.ok("Revenue added successfully");
         } catch (Exception e) {
-            logger.severe("Error adding revenue: " + e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            logger.warning("Error: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
+
+
 }

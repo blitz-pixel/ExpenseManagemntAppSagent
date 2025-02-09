@@ -1,6 +1,6 @@
 package com.example.ExpenseManagementApp.Controllers;
 
-import com.example.ExpenseManagementApp.Configuration.JwtUtil;
+//import com.example.ExpenseManagementApp.Configuration.JwtUtil;
 import com.example.ExpenseManagementApp.DTO.LoginDTO;
 import com.example.ExpenseManagementApp.DTO.RegisterDTO;
 import com.example.ExpenseManagementApp.Model.User;
@@ -28,9 +28,9 @@ public class UserController {
 
 
         try {
-            String token = userService.authenticateUser(loginDTO);
-            logger.info(token);
-            return ResponseEntity.ok().header("Authorization","Bearer " + token).body("Login successful");
+            Long accountID = userService.getAccountID(loginDTO.getEmail());
+            logger.info("Token" + accountID);
+            return  ResponseEntity.ok().header("X-Account-ID" ,String.valueOf(accountID)).body("Login successful");
 //
         } catch (Exception e) {
             // Log the exception

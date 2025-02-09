@@ -1,6 +1,8 @@
 package com.example.ExpenseManagementApp.Model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -9,6 +11,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -40,9 +43,15 @@ public class Transaction {
     private BigDecimal amount;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "category_id", nullable = false)
 //    @JsonIgnore
     private Category category;
+
+    @Size(max = 40)
+    @NotNull
+    @Column(name = "uuid", nullable = false, length = 40)
+    private String uuid = UUID.randomUUID().toString();
 
     public Long getId() {
         return id;
@@ -96,11 +105,11 @@ public class Transaction {
         this.account = account;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public @Size(max = 40) @NotNull String getUuid() {
+        return uuid;
     }
 
-
-
-
+    public void setUuid(@Size(max = 40) @NotNull String uuid) {
+        this.uuid = uuid;
+    }
 }

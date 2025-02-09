@@ -1,18 +1,16 @@
 package com.example.ExpenseManagementApp.Tests;
 
 import com.example.ExpenseManagementApp.DTO.CategoryDTO;
-import com.example.ExpenseManagementApp.DTO.ExpenseRequestDTO;
 import com.example.ExpenseManagementApp.Model.Category;
-import com.example.ExpenseManagementApp.Model.Transaction;
+import com.example.ExpenseManagementApp.Model.User;
 import com.example.ExpenseManagementApp.Repositories.CategoryRepository;
+import com.example.ExpenseManagementApp.Repositories.UserRepository;
 import com.example.ExpenseManagementApp.Services.CategoryService;
 import com.example.ExpenseManagementApp.Services.TransactionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,6 +25,8 @@ public class CategoryTests {
     private TransactionService transactionService;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private UserRepository userRepository;
 
 
     @Test
@@ -39,10 +39,8 @@ public class CategoryTests {
     @Test
     public void testThatCreatesCategory(){
         Category category = new Category();
-        CategoryDTO categoryDTO = new CategoryDTO(null, 42L, "", "Grocery", Category.CatType.expense);
+        CategoryDTO categoryDTO = new CategoryDTO(22L, null, "Rent", "House", Category.CatType.income);
         Category savedCategory = categoryService.createCategory(categoryDTO);
-
-
 
         assertNotNull(savedCategory, "Category should be saved");
     }
@@ -56,9 +54,18 @@ public class CategoryTests {
 
     @Test
     public void testThtFindsAllCategories(){
-        List<Category> Categories = categoryRepository.findCategoriesById(42L);
+        List<Category> Categories = categoryRepository.findByAccountIdOrUserID(42L);
 
         assertNotNull(Categories, "Category should not be null when it exists.");
+    }
+
+    @Test
+    void  testThtFindsSpecificCategory(){
+        User user = userRepository.findById(42L).orElse(null);
+        Category c = categoryRepository.findByNameAndId("Food",user.getUser_id()).orElse(null);
+
+
+        assertNotNull(c, "Category should not be null when it exists.");
     }
 
 

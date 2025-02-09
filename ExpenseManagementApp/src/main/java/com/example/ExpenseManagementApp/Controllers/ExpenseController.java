@@ -1,17 +1,11 @@
 package com.example.ExpenseManagementApp.Controllers;
 
-import com.example.ExpenseManagementApp.DTO.ExpenseRequestDTO;
-import com.example.ExpenseManagementApp.DTO.ExpenseResponseDTO;
+import com.example.ExpenseManagementApp.DTO.TransactionDTO;
+import com.example.ExpenseManagementApp.Model.Category;
 import com.example.ExpenseManagementApp.Model.Transaction;
 import com.example.ExpenseManagementApp.Services.TransactionService;
-import com.example.ExpenseManagementApp.Services.UserService;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,14 +24,14 @@ public class ExpenseController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ExpenseResponseDTO>> getExpensesByAccount(@RequestParam Long accountId){
+    public ResponseEntity<List<TransactionDTO>> getExpensesByAccount(@RequestParam Long accountId){
         try {
 //            List<Transaction> TransactionList = expenseService.getExpenseTransactions(accountId);
 //            logger.info(TransactionList.toString());
 //            for (Transaction transaction : TransactionList) {
 //                logger.info(transaction.toString());
 //            }
-            return ResponseEntity.ok(expenseService.getExpenseTransactions(accountId));
+            return ResponseEntity.ok(expenseService.getTransactions(accountId, Category.CatType.expense));
         } catch (Exception e) {
             logger.info(e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -45,9 +39,10 @@ public class ExpenseController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addExpenseTransaction(@RequestBody ExpenseRequestDTO expenseRequestDTO) {
+    public ResponseEntity<String> addExpenseTransaction(@RequestBody TransactionDTO transactionDTO) {
         try {
-            Transaction t = expenseService.addExpenseTransaction(expenseRequestDTO);
+            System.out.print(transactionDTO);
+            Transaction t = expenseService.addTransaction(transactionDTO, Category.CatType.expense);
             logger.info(t.getId().toString());
             return ResponseEntity.ok("Expense added successfully");
         } catch (Exception e) {
