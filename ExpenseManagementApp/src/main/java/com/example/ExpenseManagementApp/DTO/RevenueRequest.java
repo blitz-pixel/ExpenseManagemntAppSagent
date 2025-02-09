@@ -1,9 +1,11 @@
 package com.example.ExpenseManagementApp.DTO;
 
+import java.math.BigDecimal;
+
 public class RevenueRequest {
     private Long accountId;
     private String description;
-    private Double amount;
+    private BigDecimal amount; // Changed from Double to BigDecimal
     private Long categoryId;
 
     // Getters and Setters
@@ -23,11 +25,11 @@ public class RevenueRequest {
         this.description = description;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -37,5 +39,5 @@ public class RevenueRequest {
 
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
-   }
+    }
 }

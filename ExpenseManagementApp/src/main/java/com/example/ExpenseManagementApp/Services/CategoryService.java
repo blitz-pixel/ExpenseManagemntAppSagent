@@ -66,11 +66,7 @@ public class CategoryService {
             throw new SQLException("Account not found");
         }
 
-        if ("shared".equals(account.getType())){
-            return account.getAccount_id();
-        } else {
-            return  account.getUser_Foriegn_id().getUser_id();
-        }
+        return account.getUser_Foriegn_id().getUser_id();
     }
 
    public List<Category> getCategoriesById(Long id){

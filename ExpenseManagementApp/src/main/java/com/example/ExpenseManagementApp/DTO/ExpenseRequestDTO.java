@@ -1,19 +1,16 @@
 package com.example.ExpenseManagementApp.DTO;
 
-import com.example.ExpenseManagementApp.Model.Account;
-import com.example.ExpenseManagementApp.Model.Transaction;
-
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Date;
 
 public class ExpenseRequestDTO {
     private Long accountId;
     private String description;
-    private Instant date;
+    private BigDecimal amount;
     private String categoryName;
     private String subCategoryName;
-    private BigDecimal amount;
+    private Instant date;
+    private Long categoryId;
 
     public String getSubCategoryName() {
         return subCategoryName;
@@ -76,5 +73,14 @@ public class ExpenseRequestDTO {
 
     public void setDate(Instant date) {
         this.date = date;
+    }
+
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+
     }
 }

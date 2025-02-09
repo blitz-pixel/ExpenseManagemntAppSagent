@@ -42,7 +42,7 @@ public class TransactionService {
     }
 
     public List<ExpenseResponseDTO> getExpenseTransactions(Long accountId) {
-        List<Transaction> ExpenseList = transactionRepository.findAllByTypeAndAccountId(Category.CatType.expense, accountId);
+        List<Transaction> ExpenseList = transactionRepository.findAllByTypeAndAccount_Id(Category.CatType.expense, accountId);
 //        ExpenseList.forEach(transaction -> Hibernate.initialize(transaction.getCategory()));
 //        ExpenseList.forEach(transaction -> Hibernate.initialize(transaction.getAccount()));
         List<ExpenseResponseDTO> ExpenseResponseDTOs = ExpenseList.stream()
@@ -77,20 +77,23 @@ public class TransactionService {
     }
 
     // Method to add revenue
-    public Transaction addRevenue(Long accountId, String description, Double amount, Long categoryId) {
+    public Transaction addRevenue(Long accountId, String description, BigDecimal amount, Long categoryId) {
         Transaction transaction = new Transaction();
-        transaction.setAccount(accountRepository.findById(accountId).orElseThrow(() -> new RuntimeException("Account not found")));
+        transaction.setAccount(accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found")));
         transaction.setDescription(description);
-        transaction.setAmount(BigDecimal.valueOf(amount));
+        transaction.setAmount(amount);  // Directly using BigDecimal
         transaction.setType(Category.CatType.income);
-        transaction.setCategory(categoryRepository.findById(categoryId).orElseThrow(() -> new RuntimeException("Category not found")));
+        transaction.setCategory(categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found")));
         transaction.setDate(Instant.now());
 
         return transactionRepository.save(transaction);
     }
 
+
     public List<RevenueResponseDTO> getRevenueTransactions(Long accountId) {
-        List<Transaction> ExpenseList = transactionRepository.findAllByTypeAndAccountId(Category.CatType.income, accountId);
+        List<Transaction> ExpenseList = transactionRepository.findAllByTypeAndAccount_Id(Category.CatType.income, accountId);
 //        ExpenseList.forEach(transaction -> Hibernate.initialize(transaction.getCategory()));
 //        ExpenseList.forEach(transaction -> Hibernate.initialize(transaction.getAccount()));
         List<RevenueResponseDTO> RevenueResponseDTOs = ExpenseList.stream()
@@ -101,3 +104,4 @@ public class TransactionService {
     }
 
 }
+

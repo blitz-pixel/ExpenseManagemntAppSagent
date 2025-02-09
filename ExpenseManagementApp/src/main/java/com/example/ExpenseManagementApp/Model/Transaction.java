@@ -23,7 +23,7 @@ public class Transaction {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "account_id", nullable = false)
-//    @JsonIgnore
+    @JsonIgnore
     private Account account;
 
     @Column(name = "date", nullable = false)

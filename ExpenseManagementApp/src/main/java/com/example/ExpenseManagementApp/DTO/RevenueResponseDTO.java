@@ -2,46 +2,40 @@ package com.example.ExpenseManagementApp.DTO;
 
 import com.example.ExpenseManagementApp.Model.Transaction;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class RevenueResponseDTO {
-    private Long accountId; // For Testing
+    private Long accountId;
     private String description;
     private Date date;
-    private String ParentcategoryName;
+    private String parentCategoryName;
     private String subCategoryName;
-    private Double amount;
-
-    public String getSubCategoryName() {
-        return subCategoryName;
-    }
-
-    public void setSubCategoryName(String subCategoryName) {
-        this.subCategoryName = subCategoryName;
-    }
-
-
+    private BigDecimal amount; // Changed from Double to BigDecimal
 
     public RevenueResponseDTO(Transaction transaction) {
-        this.accountId = transaction.getAccount().getAccount_id();
+        this.accountId = transaction.getAccount().
+                getAccount_id();
         this.description = transaction.getDescription();
         this.date = Date.from(transaction.getDate());
-        this.amount = transaction.getAmount().doubleValue();
+        this.amount = transaction.getAmount(); // Directly assign BigDecimal
+
         if (transaction.getCategory().getParent() != null) {
             this.subCategoryName = transaction.getCategory().getName();
-            this.ParentcategoryName = transaction.getCategory().getParent().getName();
+            this.parentCategoryName = transaction.getCategory().getParent().getName();
         } else {
-            this.ParentcategoryName = transaction.getCategory().getName();
+            this.parentCategoryName = transaction.getCategory().getName();
             this.subCategoryName = "";
         }
     }
+
     // Getters and Setters
-    public Long getId() {
+    public Long getAccountId() {
         return accountId;
     }
 
-    public void setId(Long id) {
-        this.accountId = id;
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 
     public String getDescription() {
@@ -52,20 +46,28 @@ public class RevenueResponseDTO {
         this.description = description;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
-    public String getParentcategoryName() {
-        return ParentcategoryName;
+    public String getParentCategoryName() {
+        return parentCategoryName;
     }
 
-    public void setParentcategoryName(String categoryName) {
-        this.ParentcategoryName = categoryName;
+    public void setParentCategoryName(String categoryName) {
+        this.parentCategoryName = categoryName;
+    }
+
+    public String getSubCategoryName() {
+        return subCategoryName;
+    }
+
+    public void setSubCategoryName(String subCategoryName) {
+        this.subCategoryName = subCategoryName;
     }
 
     public Date getDate() {
