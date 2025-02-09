@@ -31,6 +31,8 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
     List<Category> findByAccountIdOrUserID(Long accountId);
 
     Optional<Category> findByNameAndParent(String name, Category parent);
+    List<Category> findByParent(Category parent);
+
 
     @Query("SELECT c FROM Category c WHERE c.name = ?1 AND (c.account.account_id = ?2 OR c.user.user_id = ?2)")
     Optional<Category> findByNameAndId(String name, Long Id);

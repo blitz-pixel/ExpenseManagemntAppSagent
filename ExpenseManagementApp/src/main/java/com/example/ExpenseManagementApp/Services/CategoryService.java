@@ -95,6 +95,26 @@ public class CategoryService {
 
         return categoryRepository.save(category);
     }
+    @Transactional
+    public void deleteCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+
+        // Check if the category has subcategories
+        List<Category> subcategories = categoryRepository.findByParent(category);
+        if (!subcategories.isEmpty()) {
+            throw new IllegalStateException("Cannot delete category with subcategories");
+        }
+
+        // Check if the category is used in any transactions
+        // You might need to inject TransactionRepository and add a method to check this
+        // List<Transaction> transactions = transactionRepository.findByCategory(category);
+        // if (!transactions.isEmpty()) {
+        //     throw new IllegalStateException("Cannot delete category used in transactions");
+        // }
+
+        categoryRepository.delete(category);
+    }
 
 
 //    public Long isSharedAccount(Long accountId) throws SQLException {

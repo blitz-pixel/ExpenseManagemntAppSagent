@@ -47,6 +47,36 @@ public class TransactionService {
     }
 
     @Transactional
+    public Transaction updateTransaction(Long transactionId, TransactionDTO transactionDTO, Category.CatType type) {
+        Transaction existingTransaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
+
+        Account account = getAccount(transactionDTO.getAccount_id());
+        Category category = getCategory(transactionDTO.getParentCategoryName(), account.getType().equals(Account.AccountType.shared) ?
+                transactionDTO.getAccount_id() : accountService.getUser(account).getUser_id());
+
+        updateTransactionFields(existingTransaction, transactionDTO, account, category, type);
+
+        return transactionRepository.save(existingTransaction);
+    }
+
+    private void updateTransactionFields(Transaction transaction, TransactionDTO transactionDTO, Account account, Category category, Category.CatType type) {
+        transaction.setAccount(account);
+        transaction.setType(type);
+        transaction.setAmount(transactionDTO.getAmount());
+        transaction.setDate(transactionDTO.getDate() != null ? transactionDTO.getDate() : Instant.now());
+        transaction.setCategory(getCategoryForTransaction(transactionDTO, category));
+        transaction.setDescription(transactionDTO.getDescription() != null && !transactionDTO.getDescription().isEmpty() ?
+                transactionDTO.getDescription() : null);
+    }
+
+    public TransactionDTO getTransactionById(Long transactionId) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
+        return new TransactionDTO(transaction);
+    }
+
+    @Transactional
     public Transaction addTransaction(TransactionDTO transactionDTO, Category.CatType type) {
         validateTransactionDTO(transactionDTO);
         Account account = getAccount(transactionDTO.getAccount_id());
