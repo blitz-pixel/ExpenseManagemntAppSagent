@@ -35,6 +35,13 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getCategories(userId));
     }
 
+    @GetMapping("/specific")
+    public ResponseEntity<List<CategoryDTO>> getCategoriesByType(@RequestParam Long Id,@RequestParam Category.CatType type) {
+        // Before implementing the concept of shared accounts
+        Long userId = accountService.getUserId(Id);
+        return ResponseEntity.ok(categoryService.getCategories(userId, type));
+    }
+
     @PostMapping("/add")
     public ResponseEntity<String> createCategory(@RequestBody CategoryDTO categoryDTO) {
         try {
@@ -55,10 +62,10 @@ public class CategoryController {
             return ResponseEntity.badRequest().build();
         }
     }
-    @DeleteMapping("/{categoryId}")
-    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteCategory(@RequestParam Long Id, @RequestParam String name) {
         try {
-            categoryService.deleteCategory(categoryId);
+            categoryService.deleteCategory(Id,name);
             return ResponseEntity.ok("Category deleted successfully");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

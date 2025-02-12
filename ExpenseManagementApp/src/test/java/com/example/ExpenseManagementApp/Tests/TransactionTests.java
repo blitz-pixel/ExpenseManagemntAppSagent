@@ -13,8 +13,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class TransactionTests {
@@ -30,7 +29,7 @@ public class TransactionTests {
     @Test
     public void testThatCreatesExpense(){
         TransactionDTO transactionDTO = new TransactionDTO();
-        transactionDTO.setAccount_id(22L);
+        transactionDTO.setAccount_id(25L);
         transactionDTO.setAmount(BigDecimal.valueOf(1000L));
         transactionDTO.setParentCategoryName("Food");
         transactionDTO.setDescription("Lunch");
@@ -55,7 +54,7 @@ public class TransactionTests {
         TransactionDTO transactionDTO = new TransactionDTO();
         transactionDTO.setAccount_id(22L);
         transactionDTO.setAmount(BigDecimal.valueOf(1000L));
-        transactionDTO.setParentCategoryName("Salary");
+        transactionDTO.setParentCategoryName("abcabc");
 //        transactionDTO.setDescription("Salary");
         Transaction transaction = transactionService.addTransaction(transactionDTO, Category.CatType.income);
 
@@ -68,5 +67,18 @@ public class TransactionTests {
 
         assertNotNull(RevenueTransactions, "Revenue Transactions should not be null when they exist.");
 //        assertEquals("2025-02-04 06:29:30 ", RevenueTransactions.get(1).getDate().toString());
+    }
+
+    @Test
+    public void testThatAllRepositoryFunctionsWork(){
+        List<Transaction>  transactionDTOS= transactionRepository.findAllByTypeAndAccountId(Category.CatType.income, 22L);
+        assertNotNull(transactionDTOS, "Transactions should not be null when they exist.");
+    }
+
+    @Test
+    public void testThatDeletesTransaction(){
+        transactionService.deleteTransaction( " 1ecf132f-2d88-4f27-8bb1-760ae23f9013");
+
+        assertTrue(transactionRepository.findByUuid(" 1ecf132f-2d88-4f27-8bb1-760ae23f9013").isEmpty());
     }
 }

@@ -43,5 +43,11 @@ public class AccountService {
         return account.getUser_Foriegn_id();
     }
 
+    public  User getUser(Long accountId){
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        return account.getUser_Foriegn_id();
+    }
+
 
 }

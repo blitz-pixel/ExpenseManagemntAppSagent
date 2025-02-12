@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class CategoryTests {
@@ -39,7 +40,7 @@ public class CategoryTests {
     @Test
     public void testThatCreatesCategory(){
         Category category = new Category();
-        CategoryDTO categoryDTO = new CategoryDTO(22L, null, "Rent", "House", Category.CatType.income);
+        CategoryDTO categoryDTO = new CategoryDTO(25L, null, "bcabca", "abcabc", Category.CatType.income);
         Category savedCategory = categoryService.createCategory(categoryDTO);
 
         assertNotNull(savedCategory, "Category should be saved");
@@ -66,6 +67,14 @@ public class CategoryTests {
 
 
         assertNotNull(c, "Category should not be null when it exists.");
+    }
+
+    @Test
+    public  void testThatDeletesCategory(){
+        categoryService.deleteCategory(25L,"lpk");
+
+        assertTrue(categoryRepository.findByNameAndId("lpk",25L).isEmpty(), "Category should be deleted");
+
     }
 
 
