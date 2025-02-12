@@ -51,6 +51,8 @@ public class Transaction {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
 
+    public Transaction() {
+    }
     public Transaction(BigDecimal amount, Category category, Instant from, String description, Account account, Category.CatType type) {
         this.amount = amount;
         this.category = category;
