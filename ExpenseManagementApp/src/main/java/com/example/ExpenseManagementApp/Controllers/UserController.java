@@ -26,7 +26,6 @@ public class UserController {
     @PostMapping("/Login")
     public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
 
-
         try {
             Long accountID = userService.getAccountID(loginDTO.getEmail());
             logger.info("Token" + accountID);

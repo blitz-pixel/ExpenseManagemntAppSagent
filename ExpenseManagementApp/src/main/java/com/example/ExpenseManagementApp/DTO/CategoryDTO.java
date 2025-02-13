@@ -3,8 +3,6 @@ package com.example.ExpenseManagementApp.DTO;
 import com.example.ExpenseManagementApp.Model.Category;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.annotation.Nullable;
-import com.example.ExpenseManagementApp.Model.Category;
-import jakarta.annotation.Nullable;
 
 public class CategoryDTO {
 
@@ -14,16 +12,16 @@ public class CategoryDTO {
     private Long userId;
     @Nullable
     @JsonProperty("SubCategoryName")
-    private String SubCategoryName;
+    private String subCategoryName;
     @JsonProperty("ParentCategoryName")
-    private String ParentCategoryName;
+    private String parentCategoryName;
     private Category.CatType type;
 
     public CategoryDTO(@Nullable Long accountId, @Nullable Long userId, @Nullable String SubCategoryName, @Nullable String ParentCategoryName, Category.CatType type) {
         this.accountId = accountId;
         this.userId = userId;
-        this.SubCategoryName = SubCategoryName;
-        this.ParentCategoryName = ParentCategoryName;
+        this.subCategoryName = SubCategoryName;
+        this.parentCategoryName = ParentCategoryName;
         this.type = type;
     }
 
@@ -31,14 +29,14 @@ public class CategoryDTO {
     }
 
     public CategoryDTO(Category category){
-        if (category.getAccount() != null)this.accountId = category.getAccount().getAccount_id();
+        if (category.getAccount() != null)this.accountId = category.getAccount().getAccountId();
         if (category.getUser() != null)this.userId = category.getUser().getUser_id();
         if(category.getParent() != null){
-            this.SubCategoryName = category.getName();
-            this.ParentCategoryName = category.getParent().getName();
+            this.subCategoryName = category.getName();
+            this.parentCategoryName = category.getParent().getName();
         }else{
-            this.ParentCategoryName = category.getName();
-            this.SubCategoryName = "";
+            this.parentCategoryName = category.getName();
+            this.subCategoryName = "";
         }
         this.type = category.getType();
     }
@@ -62,20 +60,20 @@ public class CategoryDTO {
     }
 
     public String getSubCategoryName() {
-        return SubCategoryName;
+        return subCategoryName;
     }
 
     public void setSubCategoryName(String subCategoryName) {
-        this.SubCategoryName = subCategoryName;
+        this.subCategoryName = subCategoryName;
     }
 
     @Nullable
     public String getParentCategoryName() {
-        return ParentCategoryName;
+        return parentCategoryName;
     }
 
     public void setParentCategoryName(@Nullable String parentId) {
-        this.ParentCategoryName = parentId;
+        this.parentCategoryName = parentId;
     }
 
     public Category.CatType getType() {

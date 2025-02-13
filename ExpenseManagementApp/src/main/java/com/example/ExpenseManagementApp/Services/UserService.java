@@ -2,23 +2,16 @@ package com.example.ExpenseManagementApp.Services;
 
 
 //import com.example.ExpenseManagementApp.Configuration.JwtUtil;
-import com.example.ExpenseManagementApp.DTO.LoginDTO;
 import com.example.ExpenseManagementApp.DTO.RegisterDTO;
 import com.example.ExpenseManagementApp.Model.Account;
 import com.example.ExpenseManagementApp.Model.User;
 import com.example.ExpenseManagementApp.Repositories.AccountRepository;
 import com.example.ExpenseManagementApp.Repositories.UserRepository;
-import jakarta.transaction.Transaction;
 import jakarta.transaction.Transactional;
 //import org.hibernate.Session;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -78,9 +71,7 @@ public class UserService{
 
     }
 
-    public User getUserById(Long id) {
-
-
+    public User getUserByAccountId(Long id) {
         return userRepository.findById(id).orElse(null);
     }
 
@@ -92,7 +83,7 @@ public class UserService{
         Account account = accountRepository.findByUser_Foriegn_id(user.getUser_id()).orElseThrow(
                 () -> new IllegalArgumentException("Account not found")
         );
-        return account.getAccount_id();
+        return account.getAccountId();
     }
 
 //    public String authenticateUser(LoginDTO loginDTO) {

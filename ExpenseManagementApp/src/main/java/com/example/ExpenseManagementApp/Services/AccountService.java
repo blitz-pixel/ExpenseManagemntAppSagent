@@ -32,4 +32,22 @@ public class AccountService {
     }
 
 
+    // Before implementing the concept of shared accounts
+    public Long getUserId(Long accountId){
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        return account.getUser_Foriegn_id().getUser_id();
+    }
+
+    public  User getUser(Account account){
+        return account.getUser_Foriegn_id();
+    }
+
+    public  User getUser(Long accountId){
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        return account.getUser_Foriegn_id();
+    }
+
+
 }
