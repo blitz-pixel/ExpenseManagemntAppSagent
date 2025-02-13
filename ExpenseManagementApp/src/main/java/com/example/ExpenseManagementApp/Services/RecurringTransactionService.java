@@ -16,15 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-@Slf4j
+
 @Service
 public class RecurringTransactionService {
 
@@ -51,8 +48,8 @@ public class RecurringTransactionService {
         recurringTransaction.setFrequency(transactionDTO.getFrequency());
         recurringTransaction.setCurrentDate(LocalDate.now());
         recurringTransaction.setNextDate(calculateNextDate(recurringTransaction.getCurrentDate(), transactionDTO.getFrequency()));
-
         recurringTransaction.setActive(true);
+
         recurringTransactionRepository.save(recurringTransaction);
         return recurringTransaction;
     }
@@ -90,39 +87,44 @@ public class RecurringTransactionService {
 
     // To test
     @Transactional
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     protected void updateRecurringTransactionTimingsSample() {
         List<Recurringtransaction> recurringTransactions = recurringTransactionRepository.findAll();
-        List<Transaction> newTransactions = new ArrayList<>();
+        List<Recurringtransaction> updatedRecurringTransactions = new ArrayList<>();
 
         for (Recurringtransaction recurringTransaction : recurringTransactions) {
-            recurringTransaction.setCurrentDate(recurringTransaction.getNextDate());
-            recurringTransaction.setNextDate(
-                    calculateNextDate(recurringTransaction.getCurrentDate(), recurringTransaction.getFrequency())
-            );
+                if (LocalDate.now().isEqual(recurringTransaction.getNextDate()) || LocalDate.now().isAfter(recurringTransaction.getNextDate())) {
+                    recurringTransaction.setCurrentDate(recurringTransaction.getNextDate());
+                    recurringTransaction.setNextDate(
+                            calculateNextDate(recurringTransaction.getCurrentDate(), recurringTransaction.getFrequency())
+                    );
 
-            Transaction transaction = recurringTransaction.getTransaction();
-
-            Transaction t = new Transaction(
-                    transaction.getAmount(),
-                    transaction.getCategory(),
-                    Instant.from(recurringTransaction.getNextDate().atStartOfDay()),
-                    transaction.getDescription(),
-                    transaction.getAccount(),
-                    transaction.getType()
-            );
-
-            recurringTransaction.setTransaction(t);
-            newTransactions.add(t);
-            logger.info(t.getId().toString());
+                    Transaction newTransaction = createTransactionFromRecurringTransaction(recurringTransaction);
+                    entityManager.persist(newTransaction);
+                    entityManager.flush();
+                    recurringTransaction.setTransaction(newTransaction);
+                    updatedRecurringTransactions.add(recurringTransaction);
+                }
         }
 
-        transactionRepository.saveAll(newTransactions);
-        entityManager.flush();
         recurringTransactionRepository.saveAll(recurringTransactions);
         logger.info("Updated recurring transactions");
-
     }
+
+
+    private Transaction createTransactionFromRecurringTransaction(Recurringtransaction recurringTransaction) {
+        Transaction transaction = recurringTransaction.getTransaction();
+
+        return new Transaction(
+                transaction.getAmount(),
+                transaction.getCategory(),
+                Instant.from(recurringTransaction.getNextDate().atStartOfDay(ZoneOffset.UTC)),
+                transaction.getDescription(),
+                transaction.getAccount(),
+                transaction.getType()
+        );
+    }
+
 
     private LocalDate calculateNextDate(LocalDate currentDate, Recurringtransaction.RFrequency frequency) {
         return switch (frequency) {

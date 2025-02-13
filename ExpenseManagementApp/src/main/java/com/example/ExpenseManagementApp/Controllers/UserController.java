@@ -43,11 +43,10 @@ public class UserController {
     public ResponseEntity<String> register(@RequestBody RegisterDTO registerDTO) {
         try {
             userService.addUserPersonal(registerDTO);
-//            userService.AddToAccount(registerDTO);
             return ResponseEntity.ok("User registered successfully");
         } catch (Exception e) {
             logger.info(e.getMessage());
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

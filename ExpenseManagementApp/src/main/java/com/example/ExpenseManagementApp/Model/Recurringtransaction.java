@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 
@@ -13,12 +15,13 @@ import java.time.LocalDate;
 @Table(name = "recurringtransaction")
 public class Recurringtransaction {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recurring_id", nullable = false)
     private Long recurringId;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @MapsId
-    @JoinColumn(name = "recurring_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "transaction_id",nullable = false)
     private Transaction transaction;
 
 

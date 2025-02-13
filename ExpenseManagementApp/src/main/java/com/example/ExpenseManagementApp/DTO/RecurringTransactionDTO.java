@@ -27,12 +27,8 @@ public class RecurringTransactionDTO{
         this.amount = transaction.getAmount();
         this.type = transaction.getType();
         this.description = transaction.getDescription();
-        // adjust to zones
-        this.currentDate = recurringTransaction.getCurrentDate();
-        this.nextDate = recurringTransaction.getNextDate();
         this.is_active = recurringTransaction.getActive();
 
-        // Handle possible null category
         Category category = transaction.getCategory();
         if (category != null) {
             this.parentCategoryName = Optional.ofNullable(category.getParent())
