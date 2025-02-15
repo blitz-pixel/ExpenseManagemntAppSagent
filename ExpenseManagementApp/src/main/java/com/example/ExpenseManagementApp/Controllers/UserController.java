@@ -27,7 +27,8 @@ public class UserController {
     public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
 
         try {
-            Long accountID = userService.getAccountID(loginDTO.getEmail());
+
+            Long accountID = userService.ValidateUser(loginDTO);
             logger.info("Token" + accountID);
             return  ResponseEntity.ok().header("X-Account-ID" ,String.valueOf(accountID)).body("Login successful");
 //

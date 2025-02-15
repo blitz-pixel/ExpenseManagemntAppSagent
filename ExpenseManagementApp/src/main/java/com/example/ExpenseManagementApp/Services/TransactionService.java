@@ -123,6 +123,7 @@ public class TransactionService {
         transaction.setAccount(account);
         transaction.setType(type);
         transaction.setDeleted(false);
+        transaction.setRecurring(false);
         transaction.setAmount(transactionDTO.getAmount());
         if (transactionDTO.getDate() != null) {
             transaction.setDate(transactionDTO.getDate());

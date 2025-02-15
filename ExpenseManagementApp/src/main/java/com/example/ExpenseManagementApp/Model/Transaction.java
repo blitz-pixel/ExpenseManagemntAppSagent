@@ -51,15 +51,21 @@ public class Transaction {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
 
+    @Column(name = "is_recurring", nullable = false)
+    private Boolean isRecurring;
+
+
     public Transaction() {
     }
-    public Transaction(BigDecimal amount, Category category, Instant from, String description, Account account, Category.CatType type) {
+    public Transaction(BigDecimal amount, Category category, Instant from, String description, Account account, Category.CatType type,Boolean isDeleted,Boolean isRecurring) {
         this.amount = amount;
         this.category = category;
         this.date = from;
         this.description = description;
         this.account = account;
         this.type = type;
+        this.isDeleted = isDeleted;
+        this.isRecurring = isRecurring;
     }
 
 //    public Transaction(Recurringtransaction recurringTransaction) {
@@ -143,4 +149,11 @@ public class Transaction {
         this.uuid = uuid;
     }
 
+    public Boolean getRecurring() {
+        return isRecurring;
+    }
+
+    public void setRecurring(Boolean recurring) {
+        isRecurring = recurring;
+    }
 }

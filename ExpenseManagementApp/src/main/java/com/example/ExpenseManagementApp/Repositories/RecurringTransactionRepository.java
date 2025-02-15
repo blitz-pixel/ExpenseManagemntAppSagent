@@ -1,11 +1,14 @@
 package com.example.ExpenseManagementApp.Repositories;
 
 import com.example.ExpenseManagementApp.Model.Recurringtransaction;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RecurringTransactionRepository extends JpaRepository<Recurringtransaction, Long> {
@@ -19,4 +22,8 @@ public interface RecurringTransactionRepository extends JpaRepository<Recurringt
 
     @Query("SELECT rt FROM Recurringtransaction rt WHERE rt.transaction.account.id = ?1")
     List<Recurringtransaction> findRTransactionsByTransactionId(Long accountId);
+
+
+
+    Optional<Recurringtransaction> findByUuid(@Size(max = 40) @NotNull String uuid);
 }

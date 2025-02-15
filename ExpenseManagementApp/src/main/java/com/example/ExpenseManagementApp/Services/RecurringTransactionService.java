@@ -39,10 +39,14 @@ public class RecurringTransactionService {
     }
 
     Logger logger = Logger.getLogger(RecurringTransactionService.class.getName());
+    @Transactional
     public Recurringtransaction createRecurringTransaction(Transaction transaction,TransactionDTO transactionDTO) {
         if (recurringTransactionRepository.existsById(transaction.getId())) {
             throw new IllegalArgumentException("Recurring transaction already exists");
         }
+        transaction.setRecurring(true);
+        entityManager.persist(transaction);
+        entityManager.flush();
         Recurringtransaction recurringTransaction = new Recurringtransaction();
         recurringTransaction.setTransaction(transaction);
         recurringTransaction.setFrequency(transactionDTO.getFrequency());
@@ -93,7 +97,7 @@ public class RecurringTransactionService {
         List<Recurringtransaction> updatedRecurringTransactions = new ArrayList<>();
 
         for (Recurringtransaction recurringTransaction : recurringTransactions) {
-                if (LocalDate.now().isEqual(recurringTransaction.getNextDate()) || LocalDate.now().isAfter(recurringTransaction.getNextDate())) {
+                if ((LocalDate.now().isEqual(recurringTransaction.getNextDate()) || LocalDate.now().isAfter(recurringTransaction.getNextDate())) && recurringTransaction.getActive()) {
                     recurringTransaction.setCurrentDate(recurringTransaction.getNextDate());
                     recurringTransaction.setNextDate(
                             calculateNextDate(recurringTransaction.getCurrentDate(), recurringTransaction.getFrequency())
@@ -111,7 +115,13 @@ public class RecurringTransactionService {
         logger.info("Updated recurring transactions");
     }
 
+    public void ActivateDeactivateRecurringTransaction(String uuid){
+        Recurringtransaction recurringTransaction = recurringTransactionRepository.findByUuid(uuid)
+                .orElseThrow(() -> new IllegalArgumentException("Recurring transaction not found"));
 
+        recurringTransaction.setActive(!recurringTransaction.getActive());
+        recurringTransactionRepository.save(recurringTransaction);
+    }
     private Transaction createTransactionFromRecurringTransaction(Recurringtransaction recurringTransaction) {
         Transaction transaction = recurringTransaction.getTransaction();
 
@@ -121,7 +131,9 @@ public class RecurringTransactionService {
                 Instant.from(recurringTransaction.getNextDate().atStartOfDay(ZoneOffset.UTC)),
                 transaction.getDescription(),
                 transaction.getAccount(),
-                transaction.getType()
+                transaction.getType(),
+                transaction.getDeleted(),
+                transaction.getRecurring()
         );
     }
 
