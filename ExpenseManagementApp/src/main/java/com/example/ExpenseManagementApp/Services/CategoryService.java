@@ -133,6 +133,18 @@ public class CategoryService {
                 .toList();
     }
 
+    @Transactional
+    public void deleteCategory(Long accountId, String name) {
+        User user = accountService.getUser(accountId);
+        Category category = categoryRepository.findByNameAndId(name, user.getUser_id())
+                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+
+        categoryRepository.delete(category);
+        entityManager.flush();
+        transactionRepository.SoftDeleteTransactions();
+    }
+
+
 
 //    @Transactional
 //    public void deleteCategory(Long accountId, String name) {
@@ -151,20 +163,6 @@ public class CategoryService {
 //        transactionRepository.updateCategoryToNullByCategory(category.getId());
 //        categoryRepository.delete(category);
 //    }
-
-    @Transactional
-    public void deleteCategory(Long accountId, String name) {
-        User user = accountService.getUser(accountId);
-        Category category = categoryRepository.findByNameAndId(name, user.getUser_id())
-                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
-
-        categoryRepository.delete(category);
-        entityManager.flush();
-        transactionRepository.SoftDeleteTransactions();
-    }
-
-
-
 
 
 //    public Long isSharedAccount(Long accountId) throws SQLException {
