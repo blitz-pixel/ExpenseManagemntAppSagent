@@ -10,10 +10,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 
+
 public class TransactionDTO {
     @JsonProperty("accountId")
     private Long accountId;
-    @Nullable
     private String uuid;
     private String description;
     private Instant date;
@@ -27,7 +27,8 @@ public class TransactionDTO {
     private Boolean isRecurring;
     @Nullable
     private Recurringtransaction.RFrequency frequency;
-
+    @Nullable
+    private Category.CatType type;
 
 
     // For testing
@@ -40,6 +41,12 @@ public class TransactionDTO {
 //        this.amount = amount;
 //    }
 
+    public TransactionDTO(String uuid, BigDecimal Amount, Instant date, Category.CatType type) {
+        this.uuid = uuid;
+        this.amount = Amount;
+        this.date = date;
+        this.type = type;
+    }
     // For Response
     public TransactionDTO(Transaction transaction) {
         this.accountId = transaction.getAccount().getAccountId();
@@ -61,6 +68,8 @@ public class TransactionDTO {
         }
 
     }
+
+
     public TransactionDTO(){
     }
 

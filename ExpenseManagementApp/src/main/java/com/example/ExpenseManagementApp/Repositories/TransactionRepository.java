@@ -128,6 +128,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT t FROM Transaction t WHERE t.type = ?1 AND t.account.id = ?2 AND t.isDeleted = false")
     List<Transaction> findAllByTypeAndAccountId(Category.CatType type, Long accountId);
 
+    @Query("SELECT t FROM Transaction t WHERE t.account.id = ?1 AND t.isDeleted = false ORDER BY t.date DESC LIMIT 5")
+    List<Transaction> findRecentTransactions(Long accountId);
+
     Optional<Transaction> findByUuid(@Size(max = 40) @NotNull String uuid);
 
 //    Optional<List<Transaction>> findByCategoryId(Long categoryId);

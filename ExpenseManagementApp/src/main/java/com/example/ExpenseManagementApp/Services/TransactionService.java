@@ -151,6 +151,13 @@ public class TransactionService {
         }
     }
 
+    public List<TransactionDTO> getRecentTransactions(Long accountId) {
+        List<Transaction> transactions = transactionRepository.findRecentTransactions(accountId);
+        return transactions.stream().map(
+                transaction -> new TransactionDTO(transaction.getUuid(),transaction.getAmount(),transaction.getDate(),transaction.getType())
+        ).toList();
+    }
+
 
     @Transactional
     public void deleteTransaction(String uuid) {

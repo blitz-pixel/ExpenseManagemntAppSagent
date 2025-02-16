@@ -3,6 +3,7 @@ package com.example.ExpenseManagementApp.Controllers;
 import com.example.ExpenseManagementApp.DTO.TransactionDTO;
 import com.example.ExpenseManagementApp.Model.Category;
 import com.example.ExpenseManagementApp.Model.Transaction;
+import com.example.ExpenseManagementApp.Services.RecurringTransactionService;
 import com.example.ExpenseManagementApp.Services.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,11 +20,14 @@ public class RevenueController {
     Logger logger = Logger.getLogger(getClass().getName());
 
 
-    public TransactionService revenueService;
+    private TransactionService revenueService;
+    private RecurringTransactionService recurringTransactionService;
+
 
     @Autowired
-    public void setTransactionService(TransactionService transactionService) {
+    public void setTransactionService(TransactionService transactionService, RecurringTransactionService recurringTransactionService) {
         this.revenueService = transactionService;
+        this.recurringTransactionService = recurringTransactionService;
     }
 
     @GetMapping
@@ -55,6 +59,9 @@ public class RevenueController {
                 return ResponseEntity.badRequest().body("Missing required fields in the transactionDTO body");
             }
             Transaction t = revenueService.addTransaction(transactionDTO, Category.CatType.income);
+            if (Boolean.TRUE.equals(transactionDTO.getRecurring())) {
+                recurringTransactionService.createRecurringTransaction(t, transactionDTO);
+            }
             return ResponseEntity.ok("Revenue added successfully");
         } catch (Exception e) {
             logger.warning("Error: " + e.getMessage());
