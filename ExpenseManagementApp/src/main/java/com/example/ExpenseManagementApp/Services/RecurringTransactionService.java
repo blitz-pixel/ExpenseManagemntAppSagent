@@ -140,6 +140,7 @@ public class RecurringTransactionService {
 
     private LocalDate calculateNextDate(LocalDate currentDate, Recurringtransaction.RFrequency frequency) {
         return switch (frequency) {
+            case NONE -> currentDate;
             case DAILY -> currentDate.plusDays(1);
             case WEEKLY -> currentDate.plusWeeks(1);
             case MONTHLY -> currentDate.plusMonths(1);

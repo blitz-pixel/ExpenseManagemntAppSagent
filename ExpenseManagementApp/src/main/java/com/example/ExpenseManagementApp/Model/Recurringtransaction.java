@@ -92,6 +92,7 @@ public class Recurringtransaction {
     }
 
     public enum RFrequency {
+        NONE,
         DAILY,
         WEEKLY,
         MONTHLY,
