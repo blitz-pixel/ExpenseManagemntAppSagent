@@ -16,4 +16,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @Query("SELECT a FROM Account a WHERE a.User_Foriegn_id.user_id= ?1")
     Optional<Account> findByUser_Foriegn_id(Long user_id);
+
+    @Query(value = "SELECT a.account_id  FROM account a WHERE a.user_id = ?1 ORDER BY a.created_at asc LIMIT 1", nativeQuery = true)
+    Optional<Long> findOldestAccountId(Long userId);
+
 }

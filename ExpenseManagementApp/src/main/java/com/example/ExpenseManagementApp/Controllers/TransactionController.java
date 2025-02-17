@@ -4,6 +4,7 @@ import com.example.ExpenseManagementApp.DTO.TransactionDTO;
 import com.example.ExpenseManagementApp.Model.Category;
 import com.example.ExpenseManagementApp.Model.Transaction;
 import com.example.ExpenseManagementApp.Services.TransactionService;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,57 +36,18 @@ public class TransactionController {
         }
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<Transaction> addTransaction(@RequestBody TransactionDTO transactionDTO, @RequestParam Category.CatType type) {
+    @GetMapping("/all")
+    public ResponseEntity<List<TransactionDTO>> getAllTransactions(@RequestParam Long accountId) {
         try {
-            Transaction createdTransaction = transactionService.addTransaction(transactionDTO, type);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdTransaction);
-        } catch (RuntimeException e) {
-            logger.severe("Error adding transaction: " + e.getMessage());
-            return ResponseEntity.badRequest().build();
+            List<TransactionDTO> transactions = transactionService.getRecentTransactions(accountId);
+            return ResponseEntity.ok(transactions);
         } catch (Exception e) {
-            logger.severe("Unexpected error adding transaction: " + e.getMessage());
+            logger.severe("Error fetching transactions: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @DeleteMapping("/{transactionId}")
-    public ResponseEntity<String> deleteTransaction(@PathVariable Long transactionId) {
-        try {
-            transactionService.DeleteTransaction(transactionId);
-            return ResponseEntity.ok("Transaction deleted successfully");
-        } catch (Exception e) {
-            logger.severe("Error deleting transaction: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the transaction");
-        }
-    }
 
-    @PutMapping("/{transactionId}")
-    public ResponseEntity<Transaction> updateTransaction(@PathVariable Long transactionId, @RequestBody TransactionDTO transactionDTO, @RequestParam Category.CatType type) {
-        try {
-            Transaction updatedTransaction = transactionService.updateTransaction(transactionId, transactionDTO, type);
-            return ResponseEntity.ok(updatedTransaction);
-        } catch (IllegalArgumentException e) {
-            logger.warning("Invalid transaction update request: " + e.getMessage());
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logger.severe("Error updating transaction: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 
-    @GetMapping("/{transactionId}")
-    public ResponseEntity<TransactionDTO> getTransactionById(@PathVariable Long transactionId) {
-        try {
-            TransactionDTO transaction = transactionService.getTransactionById(transactionId);
-            return ResponseEntity.ok(transaction);
-        } catch (IllegalArgumentException e) {
-            logger.warning("Transaction not found: " + e.getMessage());
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            logger.severe("Error fetching transaction: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 }
 

@@ -42,12 +42,48 @@ public class Transaction {
     @Column(name = "amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "category_id", nullable = false)
-//    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "category_id", nullable = true)
     private Category category;
 
+
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted;
+
+    @Column(name = "is_recurring", nullable = false)
+    private Boolean isRecurring;
+
+
+    public Transaction() {
+    }
+    public Transaction(BigDecimal amount, Category category, Instant from, String description, Account account, Category.CatType type,Boolean isDeleted,Boolean isRecurring) {
+        this.amount = amount;
+        this.category = category;
+        this.date = from;
+        this.description = description;
+        this.account = account;
+        this.type = type;
+        this.isDeleted = isDeleted;
+        this.isRecurring = isRecurring;
+    }
+
+//    public Transaction(Recurringtransaction recurringTransaction) {
+//        Transaction transaction = recurringTransaction.getTransaction();
+//        this.account = transaction.getAccount();
+//        this.date = transaction.getDate();
+//        this.type = transaction.getType();
+////        this
+////        this.setCategory();
+//    }
+
+    public Boolean getDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        isDeleted = deleted;
+    }
     @Size(max = 40)
     @NotNull
     @Column(name = "uuid", nullable = false, length = 40)
@@ -111,5 +147,13 @@ public class Transaction {
 
     public void setUuid(@Size(max = 40) @NotNull String uuid) {
         this.uuid = uuid;
+    }
+
+    public Boolean getRecurring() {
+        return isRecurring;
+    }
+
+    public void setRecurring(Boolean recurring) {
+        isRecurring = recurring;
     }
 }

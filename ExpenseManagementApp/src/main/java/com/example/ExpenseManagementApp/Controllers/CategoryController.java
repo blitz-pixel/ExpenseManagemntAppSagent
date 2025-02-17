@@ -4,6 +4,7 @@ import com.example.ExpenseManagementApp.DTO.CategoryDTO;
 import com.example.ExpenseManagementApp.Model.Category;
 import com.example.ExpenseManagementApp.Services.AccountService;
 import com.example.ExpenseManagementApp.Services.CategoryService;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,39 +36,37 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getCategories(userId));
     }
 
+    @GetMapping("/specific")
+    public ResponseEntity<List<CategoryDTO>> getCategoriesByType(@RequestParam Long Id,@RequestParam Category.CatType type) {
+        // Before implementing the concept of shared accounts
+        Long userId = accountService.getUserId(Id);
+        return ResponseEntity.ok(categoryService.getCategories(userId, type));
+    }
+
     @PostMapping("/add")
     public ResponseEntity<String> createCategory(@RequestBody CategoryDTO categoryDTO) {
         try {
             Category createdCategory = categoryService.createCategory(categoryDTO);
             return ResponseEntity.ok("Category added successfully");
         } catch (Exception e) {
-            if (e.getMessage().equals("Parent Category does not exist")) {
-                return ResponseEntity.badRequest().body("Parent Category does not exist");
-            }
-
-            if (e.getMessage().equals("Sub Category already exists")) {
-                return ResponseEntity.badRequest().body("Sub Category already exists");
-            }
-            if (e.getMessage().equals("Parent Category already exists")) {
-                return ResponseEntity.badRequest().body("Parent Category already exists");
-            }
+           if (e instanceof IllegalArgumentException){
+               return ResponseEntity.badRequest().body(e.getMessage());
+           }
             logger.info(e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
-    @DeleteMapping("/{categoryId}")
-    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteCategory(@RequestParam Long Id, @RequestParam String name) {
         try {
-            categoryService.deleteCategory(categoryId);
+            categoryService.deleteCategory(Id,name);
             return ResponseEntity.ok("Category deleted successfully");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            logger.severe("Error deleting category: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the category");
+            if (e instanceof IllegalArgumentException){
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
         }
+        return ResponseEntity.badRequest().build();
     }
 
 

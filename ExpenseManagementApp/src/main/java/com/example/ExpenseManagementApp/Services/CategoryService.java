@@ -2,18 +2,27 @@ package com.example.ExpenseManagementApp.Services;
 
 
 import com.example.ExpenseManagementApp.DTO.CategoryDTO;
+import com.example.ExpenseManagementApp.DTO.TransactionDTO;
 import com.example.ExpenseManagementApp.Model.Account;
 import com.example.ExpenseManagementApp.Model.Category;
+import com.example.ExpenseManagementApp.Model.Transaction;
 import com.example.ExpenseManagementApp.Model.User;
 import com.example.ExpenseManagementApp.Repositories.AccountRepository;
 import com.example.ExpenseManagementApp.Repositories.CategoryRepository;
+import com.example.ExpenseManagementApp.Repositories.TransactionRepository;
 import com.example.ExpenseManagementApp.Repositories.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
@@ -21,15 +30,22 @@ public class CategoryService {
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
     private final AccountService accountService;
+    private final TransactionService transactionService;
+    private final TransactionRepository transactionRepository;
 
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     Logger logger = Logger.getLogger(CategoryService.class.getName());
     @Autowired
-    public CategoryService(CategoryRepository categoryRepository, AccountRepository accountRepository, UserRepository userRepository, AccountService accountService) {
+    public CategoryService(CategoryRepository categoryRepository, AccountRepository accountRepository, UserRepository userRepository, AccountService accountService, TransactionService transactionService, TransactionRepository transactionRepository) {
         this.categoryRepository = categoryRepository;
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
         this.accountService = accountService;
+        this.transactionService = transactionService;
+        this.transactionRepository = transactionRepository;
     }
 
     @Transactional
@@ -59,16 +75,19 @@ public class CategoryService {
             throw new IllegalArgumentException("Parent Category does not exist");
         }
 
-        if (parentCategory != null && categoryDTO.getSubCategoryName().isEmpty()) {
-            throw new IllegalArgumentException("Parent Category already exists");
+
+        if (parentCategory != null) {
+            if (categoryDTO.getSubCategoryName().isEmpty()) {
+                throw new IllegalArgumentException("Parent Category already exists");
+            }
+            if (subCategory == null && categoryDTO.getType() != parentCategory.getType()) {
+                throw new IllegalArgumentException("Category type must be the same as Parent Category");
+            }
         }
-
-
 
         if (subCategory != null) {
             throw new IllegalArgumentException("Sub Category already exists");
         }
-
 
         Category category = new Category();
 
@@ -76,6 +95,9 @@ public class CategoryService {
         // No shared accounts so account will always be null
         category.setAccount(null);
         category.setUser(user);
+
+
+
         category.setType(categoryDTO.getType());
 
 
@@ -95,26 +117,52 @@ public class CategoryService {
 
         return categoryRepository.save(category);
     }
+
+
+    public List<CategoryDTO> getCategories(Long id) {
+        List<Category> categories = categoryRepository.findByAccountIdOrUserID(id);
+        return categories.stream()
+                .map(CategoryDTO::new)
+                .toList();
+    }
+
+    public List<CategoryDTO> getCategories(Long id, Category.CatType type) {
+        List<Category> categories = categoryRepository.findByAccountIdOrUserIDAndType(id, type);
+        return categories.stream()
+                .map(CategoryDTO::new)
+                .toList();
+    }
+
     @Transactional
-    public void deleteCategory(Long categoryId) {
-        Category category = categoryRepository.findById(categoryId)
+    public void deleteCategory(Long accountId, String name) {
+        User user = accountService.getUser(accountId);
+        Category category = categoryRepository.findByNameAndId(name, user.getUser_id())
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
-        // Check if the category has subcategories
-        List<Category> subcategories = categoryRepository.findByParent(category);
-        if (!subcategories.isEmpty()) {
-            throw new IllegalStateException("Cannot delete category with subcategories");
-        }
-
-        // Check if the category is used in any transactions
-        // You might need to inject TransactionRepository and add a method to check this
-        // List<Transaction> transactions = transactionRepository.findByCategory(category);
-        // if (!transactions.isEmpty()) {
-        //     throw new IllegalStateException("Cannot delete category used in transactions");
-        // }
-
         categoryRepository.delete(category);
+        entityManager.flush();
+        transactionRepository.SoftDeleteTransactions();
     }
+
+
+
+//    @Transactional
+//    public void deleteCategory(Long accountId, String name) {
+//        User user = accountService.getUser(accountId);
+//        Category category = categoryRepository.findByNameAndId(name, user.getUser_id())
+//                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+//
+//
+//        List<Category> subCategories = categoryRepository.findByParent(category).orElse(Collections.emptyList());
+//        for (Category sub : subCategories) {
+//            transactionRepository.markTransactionsAsDeletedByCategory(sub.getId());
+//            transactionRepository.updateCategoryToNullByCategory(sub.getId());
+//        }
+//        categoryRepository.deleteAll(subCategories);
+//        transactionRepository.markTransactionsAsDeletedByCategory(category.getId());
+//        transactionRepository.updateCategoryToNullByCategory(category.getId());
+//        categoryRepository.delete(category);
+//    }
 
 
 //    public Long isSharedAccount(Long accountId) throws SQLException {
@@ -130,15 +178,8 @@ public class CategoryService {
 //        }
 //    }
 
-    public List<Category> getCategoriesByType(Category.CatType type) {
-        return categoryRepository.findByType(type);
-    }
 
-    public List<CategoryDTO> getCategories(Long Id) {
-        List<Category> categories = categoryRepository.findByAccountIdOrUserID(Id);
-        return categories.stream()
-                .map(CategoryDTO::new)
-                .toList();
-    }
+
+
 
 }

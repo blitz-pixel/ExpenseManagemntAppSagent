@@ -26,9 +26,9 @@ public class UserController {
     @PostMapping("/Login")
     public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
 
-
         try {
-            Long accountID = userService.getAccountID(loginDTO.getEmail());
+
+            Long accountID = userService.ValidateUser(loginDTO);
             logger.info("Token" + accountID);
             return  ResponseEntity.ok().header("X-Account-ID" ,String.valueOf(accountID)).body("Login successful");
 //
@@ -44,11 +44,10 @@ public class UserController {
     public ResponseEntity<String> register(@RequestBody RegisterDTO registerDTO) {
         try {
             userService.addUserPersonal(registerDTO);
-//            userService.AddToAccount(registerDTO);
             return ResponseEntity.ok("User registered successfully");
         } catch (Exception e) {
             logger.info(e.getMessage());
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

@@ -1,33 +1,34 @@
 package com.example.ExpenseManagementApp.DTO;
 
+import com.example.ExpenseManagementApp.Model.Category;
+import com.example.ExpenseManagementApp.Model.Recurringtransaction;
 import com.example.ExpenseManagementApp.Model.Transaction;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.annotation.Nullable;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
+
 
 public class TransactionDTO {
     @JsonProperty("accountId")
     private Long accountId;
-    @Nullable
     private String uuid;
     private String description;
     private Instant date;
-
     @JsonProperty("ParentCategoryName")
-    private String parentCategoryName;
+    protected String parentCategoryName;
     @JsonProperty("SubCategoryName")
-    private String subCategoryName;
-    private BigDecimal amount;
-
-    public String getSubCategoryName() {
-        return subCategoryName;
-    }
-
-    public void setSubCategoryName(String subCategoryName) {
-        this.subCategoryName = subCategoryName;
-    }
+    protected String subCategoryName;
+    protected BigDecimal amount;
+//    private Boolean isDeleted;
+    @Nullable
+    private Boolean isRecurring;
+    @Nullable
+    private Recurringtransaction.RFrequency frequency;
+    @Nullable
+    private Category.CatType type;
 
 
     // For testing
@@ -40,6 +41,12 @@ public class TransactionDTO {
 //        this.amount = amount;
 //    }
 
+    public TransactionDTO(String uuid, BigDecimal Amount, Instant date, Category.CatType type) {
+        this.uuid = uuid;
+        this.amount = Amount;
+        this.date = date;
+        this.type = type;
+    }
     // For Response
     public TransactionDTO(Transaction transaction) {
         this.accountId = transaction.getAccount().getAccountId();
@@ -47,16 +54,25 @@ public class TransactionDTO {
         this.description = transaction.getDescription();
         this.date = transaction.getDate();
         this.amount = transaction.getAmount();
-        if (transaction.getCategory().getParent() != null) {
-            this.subCategoryName = transaction.getCategory().getName();
-            this.parentCategoryName = transaction.getCategory().getParent().getName();
+//        this.isDeleted = transaction.getDeleted();
+        Category category = transaction.getCategory();
+        if (category != null) {
+            this.parentCategoryName = Optional.ofNullable(category.getParent())
+                    .map(Category::getName)
+                    .orElse(category.getName());
+
+            this.subCategoryName = (category.getParent() != null) ? category.getName() : "";
         } else {
-            this.parentCategoryName = transaction.getCategory().getName();
+            this.parentCategoryName = "";
             this.subCategoryName = "";
         }
+
     }
+
+
     public TransactionDTO(){
     }
+
 
     // Getters and Setters
     public Long getAccount_id() {
@@ -107,8 +123,44 @@ public class TransactionDTO {
         this.date = date;
     }
 
+    public String getSubCategoryName() {
+        return subCategoryName;
+    }
+
+    public void setSubCategoryName(String subCategoryName) {
+        this.subCategoryName = subCategoryName;
+    }
+
+//    public Boolean getDeleted() {
+//        return isDeleted;
+//    }
+//
+//    public void setDeleted(Boolean deleted) {
+//        isDeleted = deleted;
+//    }
+
     @Nullable
     public String getUuid() {
         return uuid;
+    }
+
+    public Boolean getRecurring() {
+        return isRecurring;
+    }
+
+    public void setRecurring(Boolean recurring) {
+        isRecurring = recurring;
+    }
+
+    public void setUuid(@Nullable String uuid) {
+        this.uuid = uuid;
+    }
+
+    public Recurringtransaction.RFrequency getFrequency() {
+        return frequency;
+    }
+
+    public void setFrequency(Recurringtransaction.RFrequency frequency) {
+        this.frequency = frequency;
     }
 }

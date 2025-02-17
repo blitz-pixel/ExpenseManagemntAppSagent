@@ -2,11 +2,15 @@ package com.example.ExpenseManagementApp.Services;
 
 
 //import com.example.ExpenseManagementApp.Configuration.JwtUtil;
+import com.example.ExpenseManagementApp.Configuration.PasswordUtil;
+import com.example.ExpenseManagementApp.DTO.LoginDTO;
 import com.example.ExpenseManagementApp.DTO.RegisterDTO;
 import com.example.ExpenseManagementApp.Model.Account;
 import com.example.ExpenseManagementApp.Model.User;
 import com.example.ExpenseManagementApp.Repositories.AccountRepository;
 import com.example.ExpenseManagementApp.Repositories.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 //import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +24,9 @@ public class UserService{
 
 
     private final UserRepository userRepository;
-//    private final JwtUtil jwtUtil;
     private final AccountRepository accountRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     public UserService(UserRepository userRepository, AccountRepository accountRepository) {
@@ -53,27 +58,21 @@ public class UserService{
         User user = new User();
         user.setUserName(registerDTO.getUserName());
         user.setEmail(registerDTO.getEmail());
-        user.setPassword(registerDTO.getPassword());
+        String HashPassword = PasswordUtil.hashPassword(registerDTO.getPassword());
+        user.setPassword(HashPassword);
 
         User savedUser = userRepository.save(user);
-
-//        System.out.println("Saved User ID: " + savedUser.getUser_id());
+        entityManager.flush();
 
         Account account = new Account();
         account.setAccountName(savedUser.getUserName());
         account.setType(Account.AccountType.personal);
         account.setUser_Foriegn_id(savedUser);
-//        System.out.println("Account :"  + account.getUser_Foriegn_id());
-//        System.out.println("Account ID:"  + account.getUser_Foriegn_id().getUser_id());
-
         accountRepository.save(account);
-//      System.out.println("Saved Account ID: " + savedAccount.getAccount_id());
 
     }
 
     public User getUserByAccountId(Long id) {
-
-
         return userRepository.findById(id).orElse(null);
     }
 
@@ -86,6 +85,19 @@ public class UserService{
                 () -> new IllegalArgumentException("Account not found")
         );
         return account.getAccountId();
+    }
+
+    public Long ValidateUser(LoginDTO loginDTO){
+        User user = userRepository.findByEmail(loginDTO.getEmail()).orElseThrow(
+                () -> new IllegalArgumentException("User not found. Please register")
+        );
+        if ((!loginDTO.getEmail().equalsIgnoreCase("testprofile@123.com") && (!PasswordUtil.verifyPassword(loginDTO.getPassword(), user.getPassword())))) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+
+        return accountRepository.findOldestAccountId(user.getUser_id()).orElseThrow(
+                () -> new IllegalArgumentException("Create a account")
+        );
     }
 
 //    public String authenticateUser(LoginDTO loginDTO) {

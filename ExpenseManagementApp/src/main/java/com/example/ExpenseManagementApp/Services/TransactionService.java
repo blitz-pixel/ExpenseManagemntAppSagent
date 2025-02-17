@@ -1,19 +1,22 @@
 package com.example.ExpenseManagementApp.Services;
 
 import com.example.ExpenseManagementApp.DTO.TransactionDTO;
-import com.example.ExpenseManagementApp.Model.Account;
-import com.example.ExpenseManagementApp.Model.Category;
-import com.example.ExpenseManagementApp.Model.Transaction;
+import com.example.ExpenseManagementApp.Model.*;
 import com.example.ExpenseManagementApp.Repositories.AccountRepository;
 import com.example.ExpenseManagementApp.Repositories.CategoryRepository;
+import com.example.ExpenseManagementApp.Repositories.RecurringTransactionRepository;
 import com.example.ExpenseManagementApp.Repositories.TransactionRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.ExpenseManagementApp.Model.User;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -25,24 +28,27 @@ public class TransactionService {
     private final CategoryRepository categoryRepository;
     private final UserService userService;
     private final AccountService accountService;
+    private final RecurringTransactionRepository recurringTransactionRepository;
 
     Logger logger = Logger.getLogger(TransactionService.class.getName());
 
     @Autowired
     public TransactionService(TransactionRepository transactionRepository,
                               AccountRepository accountRepository,
-                              CategoryRepository categoryRepository, UserService userService, AccountService accountService) {
+                              CategoryRepository categoryRepository, UserService userService, AccountService accountService, RecurringTransactionRepository recurringTransactionRepository) {
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;
         this.categoryRepository = categoryRepository;
         this.userService = userService;
         this.accountService = accountService;
+        this.recurringTransactionRepository = recurringTransactionRepository;
     }
 
     @Transactional
     public List<TransactionDTO> getTransactions(Long accountId, Category.CatType type) {
         List<Transaction> transactions = transactionRepository.findAllByTypeAndAccountId(type, accountId);
         logger.info(transactions.toString());
+
         return transactions.stream().map(TransactionDTO::new).toList();
     }
 
@@ -81,6 +87,7 @@ public class TransactionService {
         validateTransactionDTO(transactionDTO);
         Account account = getAccount(transactionDTO.getAccount_id());
         Category category = null;
+
         if (account.getType().equals(Account.AccountType.shared)) {
             category = getCategory(transactionDTO.getParentCategoryName(),transactionDTO.getAccount_id());
         } else {
@@ -91,6 +98,8 @@ public class TransactionService {
 
         return transactionRepository.save(transaction);
     }
+
+
 
     private void validateTransactionDTO(TransactionDTO transactionDTO) {
         if (transactionDTO.getAccount_id() == null) {
@@ -113,6 +122,8 @@ public class TransactionService {
         Transaction transaction = new Transaction();
         transaction.setAccount(account);
         transaction.setType(type);
+        transaction.setDeleted(false);
+        transaction.setRecurring(false);
         transaction.setAmount(transactionDTO.getAmount());
         if (transactionDTO.getDate() != null) {
             transaction.setDate(transactionDTO.getDate());
@@ -125,7 +136,10 @@ public class TransactionService {
         if (transactionDTO.getDescription() != null && !transactionDTO.getDescription().isEmpty()) {
             transaction.setDescription(transactionDTO.getDescription());
         }
+
+        if (transaction.getType() != category.getType()) throw new RuntimeException("Transaction type and category type do not match");
         return transaction;
+
     }
 
     private Category getCategoryForTransaction(TransactionDTO transactionDTO, Category parentCategory) {
@@ -137,7 +151,23 @@ public class TransactionService {
         }
     }
 
-    public void DeleteTransaction(Long transactionId) {
-        transactionRepository.deleteById(transactionId);
+    public List<TransactionDTO> getRecentTransactions(Long accountId) {
+        List<Transaction> transactions = transactionRepository.findRecentTransactions(accountId);
+        return transactions.stream().map(
+                transaction -> new TransactionDTO(transaction.getUuid(),transaction.getAmount(),transaction.getDate(),transaction.getType())
+        ).toList();
     }
+
+
+    @Transactional
+    public void deleteTransaction(String uuid) {
+        Transaction transaction = transactionRepository.findByUuid(uuid.trim())
+                .orElseThrow(() -> new EntityNotFoundException("Transaction not found"));
+       transactionRepository.delete(transaction);
+    }
+
+    public List<Transaction> findTransactionByCategoryId(Long categoryId) {
+        return  transactionRepository.findByCategoryId(categoryId).orElseThrow(() -> new EntityNotFoundException("Transaction not found"));
+    }
+
 }
