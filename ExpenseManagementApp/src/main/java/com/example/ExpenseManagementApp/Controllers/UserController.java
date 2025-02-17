@@ -2,13 +2,12 @@ package com.example.ExpenseManagementApp.Controllers;
 
 //import com.example.ExpenseManagementApp.Configuration.JwtUtil;
 import com.example.ExpenseManagementApp.DTO.LoginDTO;
-import com.example.ExpenseManagementApp.DTO.RegisterDTO;
+import com.example.ExpenseManagementApp.DTO.UserDTO;
 import com.example.ExpenseManagementApp.Model.User;
+import com.example.ExpenseManagementApp.Services.AccountService;
 import com.example.ExpenseManagementApp.Services.UserService;
-import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,19 +15,25 @@ import java.util.logging.Logger;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/user")
 public class UserController {
-    @Autowired
     private UserService userService;
+    private AccountService accountService;
 
-    Logger logger = Logger.getLogger(UserController.class.getName()); // Create a logger instance
+    @Autowired
+    public void setAccountService(AccountService accountService, UserService userService) {
+        this.accountService = accountService;
+        this.userService = userService;
+    }
 
-    @PostMapping("/Login")
-    public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
+    Logger logger = Logger.getLogger(UserController.class.getName());
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody UserDTO login) {
 
         try {
 
-            Long accountID = userService.ValidateUser(loginDTO);
+            Long accountID = userService.ValidateUser(login);
             logger.info("Token" + accountID);
             return  ResponseEntity.ok().header("X-Account-ID" ,String.valueOf(accountID)).body("Login successful");
 //
@@ -40,12 +45,27 @@ public class UserController {
     }
 
 
-    @PostMapping("/Registration")
-    public ResponseEntity<String> register(@RequestBody RegisterDTO registerDTO) {
+    @PostMapping("/registration")
+    public ResponseEntity<String> register(@RequestBody UserDTO userDTO) {
         try {
-            userService.addUserPersonal(registerDTO);
+            userService.addUserPersonal(userDTO);
             return ResponseEntity.ok("User registered successfully");
         } catch (Exception e) {
+            logger.info(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<String> update(@RequestBody UserDTO userDTO, @RequestParam Long accountId) {
+        try {
+            User user = accountService.getUser(accountId);
+            userService.UpdateUserDetails(userDTO, user.getEmail());
+            return ResponseEntity.ok("User updated successfully");
+        } catch (Exception e) {
+            if (e instanceof IllegalArgumentException) {
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
             logger.info(e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }

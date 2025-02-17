@@ -4,7 +4,7 @@ package com.example.ExpenseManagementApp.Services;
 //import com.example.ExpenseManagementApp.Configuration.JwtUtil;
 import com.example.ExpenseManagementApp.Configuration.PasswordUtil;
 import com.example.ExpenseManagementApp.DTO.LoginDTO;
-import com.example.ExpenseManagementApp.DTO.RegisterDTO;
+import com.example.ExpenseManagementApp.DTO.UserDTO;
 import com.example.ExpenseManagementApp.Model.Account;
 import com.example.ExpenseManagementApp.Model.User;
 import com.example.ExpenseManagementApp.Repositories.AccountRepository;
@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 // For jwt Authorization do implements UserDetailService
@@ -27,6 +28,7 @@ public class UserService{
     private final AccountRepository accountRepository;
     @PersistenceContext
     private EntityManager entityManager;
+    Logger logger = Logger.getLogger(UserService.class.getName());
 
     @Autowired
     public UserService(UserRepository userRepository, AccountRepository accountRepository) {
@@ -47,18 +49,18 @@ public class UserService{
 
 
     @Transactional
-    public void addUserPersonal(RegisterDTO registerDTO) {
+    public void addUserPersonal(UserDTO userDTO) {
 
-        if (FindUserByEmail(registerDTO.getEmail()) &&
-                userRepository.findByEmail(registerDTO.getEmail()).isPresent()) {
+        if (FindUserByEmail(userDTO.getEmail()) &&
+                userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email already exists");
         }
 
 
         User user = new User();
-        user.setUserName(registerDTO.getUserName());
-        user.setEmail(registerDTO.getEmail());
-        String HashPassword = PasswordUtil.hashPassword(registerDTO.getPassword());
+        user.setUserName(userDTO.getUserName());
+        user.setEmail(userDTO.getEmail());
+        String HashPassword = PasswordUtil.hashPassword(userDTO.getPassword());
         user.setPassword(HashPassword);
 
         User savedUser = userRepository.save(user);
@@ -87,17 +89,37 @@ public class UserService{
         return account.getAccountId();
     }
 
-    public Long ValidateUser(LoginDTO loginDTO){
-        User user = userRepository.findByEmail(loginDTO.getEmail()).orElseThrow(
+    public Long ValidateUser(UserDTO login){
+        User user = userRepository.findByEmail(login.getEmail()).orElseThrow(
                 () -> new IllegalArgumentException("User not found. Please register")
         );
-        if ((!loginDTO.getEmail().equalsIgnoreCase("testprofile@123.com") && (!PasswordUtil.verifyPassword(loginDTO.getPassword(), user.getPassword())))) {
+        if ((!login.getEmail().equalsIgnoreCase("testprofile@123.com") && (!PasswordUtil.verifyPassword(login.getPassword(), user.getPassword())))) {
             throw new IllegalArgumentException("Invalid password");
         }
 
         return accountRepository.findOldestAccountId(user.getUser_id()).orElseThrow(
                 () -> new IllegalArgumentException("Create a account")
         );
+    }
+
+
+    public void UpdateUserDetails(UserDTO userDTO, String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new IllegalArgumentException("User not found")
+        );
+        if (userDTO.getUserName() != null && !userDTO.getUserName().isEmpty()) {
+            user.setUserName(userDTO.getUserName());
+        }
+        if (userDTO.getEmail() != null && !userDTO.getEmail().isEmpty()) {
+            user.setEmail(userDTO.getEmail());
+        }
+//        System.out.println(userDTO);
+        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+            String HashPassword = PasswordUtil.hashPassword(userDTO.getPassword());
+            user.setPassword(HashPassword);
+//            logger.info(userDTO.getPassword());
+        }
+        userRepository.save(user);
     }
 
 //    public String authenticateUser(LoginDTO loginDTO) {
@@ -133,6 +155,8 @@ public class UserService{
 //        User user = userOptional.get();
 //        return new CustomUserDetails(user);
 //}
+
+
 
 }
 

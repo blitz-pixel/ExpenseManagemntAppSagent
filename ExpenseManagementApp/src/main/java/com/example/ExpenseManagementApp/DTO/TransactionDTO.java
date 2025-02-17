@@ -30,6 +30,7 @@ public class TransactionDTO {
     @Nullable
     private Recurringtransaction.RFrequency frequency;
     @Nullable
+    @JsonProperty("type")
     private Category.CatType type;
 
 
@@ -43,7 +44,7 @@ public class TransactionDTO {
 //        this.amount = amount;
 //    }
 
-    public TransactionDTO(String uuid, BigDecimal Amount, Instant date, Category.CatType type) {
+    public TransactionDTO(String uuid, BigDecimal Amount, Instant date, @Nullable Category.CatType type) {
         this.uuid = uuid;
         this.amount = Amount;
         this.date = date;
@@ -68,6 +69,9 @@ public class TransactionDTO {
             this.parentCategoryName = "";
             this.subCategoryName = "";
         }
+
+        this.isRecurring = transaction.getRecurring();
+        this.type = transaction.getType();
 
     }
 
