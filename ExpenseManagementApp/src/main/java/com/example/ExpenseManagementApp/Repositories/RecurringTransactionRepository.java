@@ -20,7 +20,7 @@ public interface RecurringTransactionRepository extends JpaRepository<Recurringt
     )
     List<Recurringtransaction> findRecurringTransactionById(Long accountId);
 
-    @Query("SELECT rt FROM Recurringtransaction rt WHERE rt.transaction.account.id = ?1")
+    @Query("SELECT rt FROM Recurringtransaction rt WHERE rt.transaction.account.id = ?1 AND NOT rt.transaction.isDeleted" )
     List<Recurringtransaction> findRTransactionsByTransactionId(Long accountId);
 
 

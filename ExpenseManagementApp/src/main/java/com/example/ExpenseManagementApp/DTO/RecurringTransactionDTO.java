@@ -3,6 +3,7 @@ package com.example.ExpenseManagementApp.DTO;
 import com.example.ExpenseManagementApp.Model.Category;
 import com.example.ExpenseManagementApp.Model.Recurringtransaction;
 import com.example.ExpenseManagementApp.Model.Transaction;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.security.core.parameters.P;
 
 import javax.management.Descriptor;
@@ -15,8 +16,12 @@ public class RecurringTransactionDTO{
     private BigDecimal amount;
     private LocalDate currentDate;
     private Category.CatType type;
+
+    @JsonProperty("Description")
     private String description;
+    @JsonProperty("ParentCategoryName")
     private String parentCategoryName;
+    @JsonProperty("SubCategoryName")
     private String subCategoryName;
     private LocalDate nextDate;
     private Boolean is_active;

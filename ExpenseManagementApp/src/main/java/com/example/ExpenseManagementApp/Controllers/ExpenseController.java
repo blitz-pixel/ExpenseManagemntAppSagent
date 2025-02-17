@@ -47,7 +47,7 @@ public class ExpenseController {
     @PostMapping("/add")
     public ResponseEntity<String> addExpenseTransaction(@RequestBody TransactionDTO transactionDTO) {
         try {
-            System.out.print(transactionDTO);
+            System.out.println(transactionDTO);
             Transaction t = expenseService.addTransaction(transactionDTO, Category.CatType.expense);
             if (Boolean.TRUE.equals(transactionDTO.getRecurring())) {
                 recurringTransactionService.createRecurringTransaction(t, transactionDTO);

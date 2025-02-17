@@ -15,6 +15,7 @@ public class TransactionDTO {
     @JsonProperty("accountId")
     private Long accountId;
     private String uuid;
+    @JsonProperty("Description")
     private String description;
     private Instant date;
     @JsonProperty("ParentCategoryName")
@@ -24,6 +25,7 @@ public class TransactionDTO {
     protected BigDecimal amount;
 //    private Boolean isDeleted;
     @Nullable
+    @JsonProperty("isRecurring")
     private Boolean isRecurring;
     @Nullable
     private Recurringtransaction.RFrequency frequency;
@@ -162,5 +164,21 @@ public class TransactionDTO {
 
     public void setFrequency(Recurringtransaction.RFrequency frequency) {
         this.frequency = frequency;
+    }
+
+    @Override
+    public String toString() {
+        return "TransactionDTO{" +
+                "accountId=" + accountId +
+                ", uuid='" + uuid + '\'' +
+                ", description='" + description + '\'' +
+                ", date=" + date +
+                ", parentCategoryName='" + parentCategoryName + '\'' +
+                ", subCategoryName='" + subCategoryName + '\'' +
+                ", amount=" + amount +
+                ", isRecurring=" + isRecurring +
+                ", frequency=" + frequency +
+                ", type=" + type +
+                '}';
     }
 }
