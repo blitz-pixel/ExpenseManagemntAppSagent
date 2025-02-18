@@ -33,7 +33,7 @@ public class ReportController {
         }
     }
 
-    @GetMapping("/Categories")
+    @GetMapping("/categories")
     public ResponseEntity<List<ReportCategoryDTO>> getReportSummaryForCategories(
             @RequestParam ReportService.Period period,@RequestParam Long accountId) {
         try {

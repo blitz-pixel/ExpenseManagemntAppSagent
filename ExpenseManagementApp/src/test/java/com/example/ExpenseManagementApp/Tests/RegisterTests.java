@@ -1,5 +1,6 @@
 package com.example.ExpenseManagementApp.Tests;
 
+import com.example.ExpenseManagementApp.DTO.UserDTO;
 import com.example.ExpenseManagementApp.Model.User;
 import com.example.ExpenseManagementApp.Repositories.UserRepository;
 import com.example.ExpenseManagementApp.Services.UserService;
@@ -14,7 +15,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@Transactional
 public class RegisterTests {
 
     @Autowired
@@ -23,8 +23,13 @@ public class RegisterTests {
     @Autowired
     private UserService userService;
 
-    // Initialize UserTest manually if it's not autowired
-    private final UserTest userTest = new UserTest();
+
+    @Test
+    public void testThtatUserIsSavedCorrectly() {
+        userService.addUserPersonal(new UserDTO("John Doe", "1234","john@123.com"));
+
+//        assertNotNull(user, "User should be saved");
+    }
 
 //    @Test
 //    public void testRegister() throws InterruptedException {

@@ -42,11 +42,6 @@ public class Recurringtransaction {
     @Column(name = "is_active")
     private Boolean isActive;
 
-    @Size(max = 40)
-    @NotNull
-    @Column(name = "uuid", nullable = false, length = 40)
-    private String uuid = UUID.randomUUID().toString();
-
     public Long getRTransactionId() {
         return recurringId;
     }

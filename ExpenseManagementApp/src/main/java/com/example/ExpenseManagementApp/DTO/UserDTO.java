@@ -14,6 +14,17 @@ public class UserDTO {
         private String email;
         private String password;
 
+
+        public UserDTO(@Nullable String userName, String email, String password) {
+                this.userName = userName;
+                this.email = email;
+                this.password = password;
+        }
+        public UserDTO() {
+        }
+
+
+
         public String getUserName() {
                 return userName;
         }

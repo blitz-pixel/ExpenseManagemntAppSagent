@@ -67,7 +67,7 @@ public class UserController {
                 return ResponseEntity.badRequest().body(e.getMessage());
             }
             logger.info(e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 }

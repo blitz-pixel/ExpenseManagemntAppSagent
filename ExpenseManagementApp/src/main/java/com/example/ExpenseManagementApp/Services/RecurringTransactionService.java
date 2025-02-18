@@ -116,7 +116,7 @@ public class RecurringTransactionService {
     }
 
     public void ActivateDeactivateRecurringTransaction(String uuid){
-        Recurringtransaction recurringTransaction = recurringTransactionRepository.findByUuid(uuid)
+        Recurringtransaction recurringTransaction = recurringTransactionRepository.findByTransaction_Uuid(uuid)
                 .orElseThrow(() -> new IllegalArgumentException("Recurring transaction not found"));
 
         recurringTransaction.setActive(!recurringTransaction.getActive());

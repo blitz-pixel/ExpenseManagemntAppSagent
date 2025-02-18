@@ -24,6 +24,5 @@ public interface RecurringTransactionRepository extends JpaRepository<Recurringt
     List<Recurringtransaction> findRTransactionsByTransactionId(Long accountId);
 
 
-
-    Optional<Recurringtransaction> findByUuid(@Size(max = 40) @NotNull String uuid);
+    Optional<Recurringtransaction> findByTransaction_Uuid(@Size(max = 40) @NotNull String uuid);
 }

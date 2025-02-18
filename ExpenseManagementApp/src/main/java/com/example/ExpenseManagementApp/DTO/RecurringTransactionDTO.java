@@ -16,7 +16,8 @@ public class RecurringTransactionDTO{
     private BigDecimal amount;
     private LocalDate currentDate;
     private Category.CatType type;
-
+    @JsonProperty("uuid")
+    private String uuid;
     @JsonProperty("Description")
     private String description;
     @JsonProperty("ParentCategoryName")
@@ -24,6 +25,7 @@ public class RecurringTransactionDTO{
     @JsonProperty("SubCategoryName")
     private String subCategoryName;
     private LocalDate nextDate;
+    @JsonProperty("isActive")
     private Boolean is_active;
 
     public RecurringTransactionDTO(Recurringtransaction recurringTransaction) {
@@ -33,6 +35,7 @@ public class RecurringTransactionDTO{
         this.type = transaction.getType();
         this.description = transaction.getDescription();
         this.is_active = recurringTransaction.getActive();
+        this.uuid = transaction.getUuid();
 
         Category category = transaction.getCategory();
         if (category != null) {
@@ -48,6 +51,14 @@ public class RecurringTransactionDTO{
 
     }
 
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
     public BigDecimal getAmount() {
         return amount;
